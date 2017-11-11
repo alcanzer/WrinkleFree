@@ -23,6 +23,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
@@ -31,6 +38,10 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class SignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -42,6 +53,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     boolean locationEnabled;
     Location mCurrentLatLng;
     Context ctx;
+    JSONObject demoObj;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +62,21 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
         checkPermissions();
         ctx = this;
+
+        final RequestQueue queue = Volley.newRequestQueue(this);
+        final String BASE_URL = "http://dev-api.wrinklefree.biz:8080/tidykart-ws/";
+
+        demoObj = new JSONObject();
+        try {
+            demoObj.put("emailAddress", "abc@gmail.com");
+            demoObj.put("mobile" +
+                    "Number", "989534823");
+            demoObj.put("firstName", "ABC");
+            demoObj.put("lastName", "CDE");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
         mSignIn = (SignInButton) findViewById(R.id.signin);
         mTextView = (TextView) findViewById(R.id.usertag);
@@ -89,6 +116,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
             @Override
             public void onClick(View view) {
                 signIn();
+                getData();
                 if (ActivityCompat.checkSelfPermission(SignInActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(SignInActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
@@ -100,6 +128,33 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                     return;
                 }
                 mLocationManager.requestSingleUpdate(mCriteria, SignInActivity.this, looper);
+            }
+
+            private void getData() {
+                /*queue.add(new JsonObjectRequest(BASE_URL + "login", demoObj, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(ctx, error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }));*/
+
+                queue.add(new JsonArrayRequest(Request.Method.GET, BASE_URL + "getappversion", null, new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Toast.makeText(ctx, response.toString()
+                                , Toast.LENGTH_SHORT).show();
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                }));
             }
         });
 
