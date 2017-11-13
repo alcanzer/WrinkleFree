@@ -38,6 +38,7 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,6 +55,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     Location mCurrentLatLng;
     Context ctx;
     JSONObject demoObj;
+    LoginResponse mUser = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +129,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                     return;
                 }
                 mLocationManager.requestSingleUpdate(mCriteria, SignInActivity.this, looper);
-                Intent intent = new Intent(getApplicationContext(), OTPActivity.class);
+                Intent intent = new Intent(getApplicationContext(), UpdateAddressActivity.class);
                 startActivity(intent);
             }
 
@@ -135,7 +137,10 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                 VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonObjectRequest(BASE_URL + "login", demoObj, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_SHORT).show();
+                        Gson gson = new Gson();
+                        mUser = gson.fromJson(response.toString(), LoginResponse.class);
+                        Toast.makeText(getApplicationContext(), mUser.getUserInfo().get(0).getEmailAddress(), Toast.LENGTH_SHORT).show();
+
                     }
                 }, new Response.ErrorListener() {
                     @Override
