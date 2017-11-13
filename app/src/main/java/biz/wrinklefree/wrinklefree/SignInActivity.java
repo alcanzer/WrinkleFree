@@ -129,8 +129,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                     return;
                 }
                 mLocationManager.requestSingleUpdate(mCriteria, SignInActivity.this, looper);
-                Intent intent = new Intent(getApplicationContext(), UpdateAddressActivity.class);
-                startActivity(intent);
             }
 
             private void getData() {
@@ -140,6 +138,10 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                         Gson gson = new Gson();
                         mUser = gson.fromJson(response.toString(), LoginResponse.class);
                         Toast.makeText(getApplicationContext(), mUser.getUserInfo().get(0).getEmailAddress(), Toast.LENGTH_SHORT).show();
+                        if(mUser.getIsFirstTimeUser()){
+                            Intent intent = new Intent(getApplicationContext(), UpdateAddressActivity.class);
+                            startActivity(intent);
+                        }
 
                     }
                 }, new Response.ErrorListener() {
