@@ -69,8 +69,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         demoObj = new JSONObject();
         try {
             demoObj.put("emailAddress", "abc@gmail.com");
-            demoObj.put("mobile" +
-                    "Number", "989534823");
+            demoObj.put("mobileNumber", "989534823");
             demoObj.put("firstName", "ABC");
             demoObj.put("lastName", "CDE");
         } catch (JSONException e) {
@@ -128,10 +127,12 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                     return;
                 }
                 mLocationManager.requestSingleUpdate(mCriteria, SignInActivity.this, looper);
+                Intent intent = new Intent(getApplicationContext(), OTPActivity.class);
+                startActivity(intent);
             }
 
             private void getData() {
-                /*queue.add(new JsonObjectRequest(BASE_URL + "login", demoObj, new Response.Listener<JSONObject>() {
+                VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonObjectRequest(BASE_URL + "login", demoObj, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_SHORT).show();
@@ -141,9 +142,9 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(ctx, error.toString(), Toast.LENGTH_SHORT).show();
                     }
-                }));*/
+                }));
 
-                queue.add(new JsonArrayRequest(Request.Method.GET, BASE_URL + "getappversion", null, new Response.Listener<JSONArray>() {
+                VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonArrayRequest(Request.Method.GET, BASE_URL + "getappversion", null, new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
                         Toast.makeText(ctx, response.toString()
