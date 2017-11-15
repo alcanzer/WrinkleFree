@@ -1,4 +1,4 @@
-package biz.wrinklefree.wrinklefree;
+package biz.wrinklefree.wrinklefree.ResponseObjects;
 
 
 import android.os.Parcel;

@@ -1,6 +1,5 @@
 package biz.wrinklefree.wrinklefree;
 
-import android.*;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -44,6 +43,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import biz.wrinklefree.wrinklefree.ResponseObjects.LoginResponse;
+
 public class SignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     SignInButton mSignIn;
@@ -56,6 +57,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     Context ctx;
     JSONObject demoObj;
     LoginResponse mUser = null;
+    public static final String BASE_URL = "http://dev-api.wrinklefree.biz:8080/tidykart-ws/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,19 +66,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
         checkPermissions();
         ctx = this;
-
-        final RequestQueue queue = Volley.newRequestQueue(this);
-        final String BASE_URL = "http://dev-api.wrinklefree.biz:8080/tidykart-ws/";
-
-        demoObj = new JSONObject();
-        try {
-            demoObj.put("emailAddress", "abc@gmail.com");
-            demoObj.put("mobileNumber", "989534823");
-            demoObj.put("firstName", "ABC");
-            demoObj.put("lastName", "CDE");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
 
         mSignIn = (SignInButton) findViewById(R.id.signin);
@@ -117,7 +106,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
             @Override
             public void onClick(View view) {
                 signIn();
-                getData();
                 if (ActivityCompat.checkSelfPermission(SignInActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(SignInActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
@@ -129,40 +117,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                     return;
                 }
                 mLocationManager.requestSingleUpdate(mCriteria, SignInActivity.this, looper);
-            }
-
-            private void getData() {
-                VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonObjectRequest(BASE_URL + "login", demoObj, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Gson gson = new Gson();
-                        mUser = gson.fromJson(response.toString(), LoginResponse.class);
-                        Toast.makeText(getApplicationContext(), mUser.getUserInfo().get(0).getEmailAddress(), Toast.LENGTH_SHORT).show();
-                        if(mUser.getIsFirstTimeUser()){
-                            Intent intent = new Intent(getApplicationContext(), UpdateAddressActivity.class);
-                            startActivity(intent);
-                        }
-
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(ctx, error.toString(), Toast.LENGTH_SHORT).show();
-                    }
-                }));
-
-                VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonArrayRequest(Request.Method.GET, BASE_URL + "getappversion", null, new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        Toast.makeText(ctx, response.toString()
-                                , Toast.LENGTH_SHORT).show();
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                    }
-                }));
             }
         });
 
@@ -176,6 +130,53 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mClient);
         startActivityForResult(signInIntent, 9);
+    }
+
+    void getData(GoogleSignInResult result){
+
+        demoObj = new JSONObject();
+        try {
+            demoObj.put("emailAddress", "gef@gmail.com");
+            demoObj.put("mobileNumber", "989534823");
+            demoObj.put("firstName", result.getSignInAccount().getDisplayName());
+            demoObj.put("lastName", "CDE");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonObjectRequest(BASE_URL + "login", demoObj, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Gson gson = new Gson();
+                mUser = gson.fromJson(response.toString(), LoginResponse.class);
+                Toast.makeText(getApplicationContext(), mUser.getUserInfo().get(0).getFirstName(), Toast.LENGTH_SHORT).show();
+                if(!mUser.getIsFirstTimeUser()){
+                    Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
+                    intent.putExtra("username", mUser.getUserInfo().get(0).getFirstName());
+                    startActivity(intent);
+                    finish();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(ctx, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }));
+
+        VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonArrayRequest(Request.Method.GET, BASE_URL + "getappversion", null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                Toast.makeText(ctx, response.toString()
+                        , Toast.LENGTH_SHORT).show();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }));
     }
 
     @Override
@@ -215,6 +216,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     void handleSignInResult(GoogleSignInResult result) {
         if (result.isSuccess()) {
             mTextView.setText(result.getSignInAccount().getEmail());
+            getData(result);
         }
     }
 
@@ -284,4 +286,8 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 }

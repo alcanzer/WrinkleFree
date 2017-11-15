@@ -1,4 +1,4 @@
-package biz.wrinklefree.wrinklefree;
+package biz.wrinklefree.wrinklefree.ResponseObjects;
 
 import java.util.List;
 
@@ -32,5 +32,9 @@ public class LoginResponse {
     public boolean getIsFirstTimeUser(){
         return this.isFirstTimeUser;
     }
+
+    /**
+     * Created by alcanzer on 11/13/17.
+     */
 
 }

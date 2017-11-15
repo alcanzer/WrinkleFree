@@ -22,7 +22,11 @@
         <activity
             android:name=".OTPActivity"
             android:theme="@style/Theme.AppCompat.Translucent" />
-        <activity android:name=".UpdateAddressActivity"
+        <activity
+            android:name=".UpdateAddressActivity"
+            android:theme="@style/UATheme">
+        </activity>
+        <activity android:name=".HomepageActivity"
             android:theme="@style/UATheme">
         </activity>
     </application>

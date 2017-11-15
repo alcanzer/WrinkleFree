@@ -24,6 +24,7 @@ public class UpdateAddressActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_address);
+        
 
         mAdd1 = (EditText) findViewById(R.id.addText1);
         mAdd2 = (EditText) findViewById(R.id.addText2);
