@@ -17,8 +17,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,15 +52,17 @@ import biz.wrinklefree.wrinklefree.ResponseObjects.LoginResponse;
 public class SignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     SignInButton mSignIn;
-    TextView mTextView, mLocationTv;
     GoogleApiClient mClient;
     LocationManager mLocationManager;
     Criteria mCriteria;
     boolean locationEnabled;
     Location mCurrentLatLng;
+    CardView cTop, cBot;
     Context ctx;
     JSONObject demoObj;
     LoginResponse mUser = null;
+    boolean done = false;
+    ProgressBar mProgressBar;
     public static final String BASE_URL = "http://dev-api.wrinklefree.biz:8080/tidykart-ws/";
 
     @Override
@@ -64,13 +70,22 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+
         checkPermissions();
         ctx = this;
 
-
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
         mSignIn = (SignInButton) findViewById(R.id.signin);
-        mTextView = (TextView) findViewById(R.id.usertag);
-        mLocationTv = (TextView) findViewById(R.id.locatadd);
+        cTop = (CardView) findViewById(R.id.topCard);
+        cBot = (CardView) findViewById(R.id.bottomCard);
+
+
+        Animation mRtL = AnimationUtils.loadAnimation(this, R.anim.righttoleft);
+        Animation mLtR = AnimationUtils.loadAnimation(this, R.anim.lefttoright);
+
+        cTop.setAnimation(mRtL);
+        cBot.setAnimation(mLtR);
+
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         locationEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -101,11 +116,14 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
         final Looper looper = null;
 
+        silentLogin();
+
 
         mSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 signIn();
+                mProgressBar.setVisibility(View.VISIBLE);
                 if (ActivityCompat.checkSelfPermission(SignInActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(SignInActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
@@ -132,7 +150,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         startActivityForResult(signInIntent, 9);
     }
 
-    void getData(GoogleSignInResult result){
+    void getData(GoogleSignInResult result) {
 
         demoObj = new JSONObject();
         try {
@@ -147,10 +165,15 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonObjectRequest(BASE_URL + "login", demoObj, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                mProgressBar.setVisibility(View.GONE);
                 Gson gson = new Gson();
                 mUser = gson.fromJson(response.toString(), LoginResponse.class);
-                Toast.makeText(getApplicationContext(), mUser.getUserInfo().get(0).getFirstName(), Toast.LENGTH_SHORT).show();
-                if(!mUser.getIsFirstTimeUser()){
+                if (mUser.getIsFirstTimeUser()) {
+                    Intent intent = new Intent(getApplicationContext(), UpdateAddressActivity.class);
+                    intent.putExtra("username", mUser.getUserInfo().get(0).getFirstName());
+                    startActivity(intent);
+                    finish();
+                } else {
                     Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
                     intent.putExtra("username", mUser.getUserInfo().get(0).getFirstName());
                     startActivity(intent);
@@ -165,33 +188,35 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
             }
         }));
 
-        VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonArrayRequest(Request.Method.GET, BASE_URL + "getappversion", null, new Response.Listener<JSONArray>() {
+        /*VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonArrayRequest(Request.Method.GET, BASE_URL + "getappversion", null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                Toast.makeText(ctx, response.toString()
-                        , Toast.LENGTH_SHORT).show();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
 
             }
-        }));
+        }));*/
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 9) {
+        if (requestCode == 9 && resultCode == RESULT_OK) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleSignInResult(result);
         }
+        else if(resultCode == RESULT_CANCELED){
+            if(mProgressBar != null && mProgressBar.getVisibility() == View.VISIBLE){
+                mProgressBar.setVisibility(View.GONE);
+            }
+        }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+
+    private void silentLogin() {
 
         OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(mClient);
         if (opr.isDone()) {
@@ -215,7 +240,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
     void handleSignInResult(GoogleSignInResult result) {
         if (result.isSuccess()) {
-            mTextView.setText(result.getSignInAccount().getEmail());
             getData(result);
         }
     }
@@ -247,7 +271,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLatLng = location;
-        Toast.makeText(ctx, location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
 
         LocationAddress locationAddress = new LocationAddress();
         locationAddress.getAddressFromLocation(location.getLatitude(), location.getLongitude(),
@@ -282,12 +305,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                 default:
                     locationAddress = null;
             }
-            mLocationTv.setText(locationAddress);
         }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
     }
 }

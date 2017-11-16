@@ -27,7 +27,7 @@
             android:theme="@style/UATheme">
         </activity>
         <activity android:name=".HomepageActivity"
-            android:theme="@style/UATheme">
+            android:theme="@style/AppTheme">
         </activity>
     </application>
 

@@ -6,7 +6,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +28,8 @@ public class HomepageActivity extends AppCompatActivity {
     CardView mNewOrder;
     FloatingActionButton mLogout;
     GoogleApiClient mClient;
+    CardView mWelcome;
+    LinearLayout mLinear;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +38,14 @@ public class HomepageActivity extends AppCompatActivity {
         mBanner = (TextView) findViewById(R.id.banner);
         mNewOrder = (CardView) findViewById(R.id.neworder);
         mLogout = (FloatingActionButton) findViewById(R.id.logout);
+        mWelcome = (CardView) findViewById(R.id.welcomecard);
+        mLinear = (LinearLayout) findViewById(R.id.homelinear);
+
+        Animation cardAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.lefttoright);
+        Animation layoutAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.bottomtotop);
+
+        mWelcome.setAnimation(cardAnim);
+        mLinear.setAnimation(layoutAnim);
 
         Intent intent = getIntent();
 
