@@ -28,7 +28,7 @@ public class HomepageActivity extends AppCompatActivity {
     CardView mNewOrder;
     FloatingActionButton mLogout;
     GoogleApiClient mClient;
-    CardView mWelcome;
+    CardView mWelcome, mProfile;
     LinearLayout mLinear;
 
     @Override
@@ -40,6 +40,7 @@ public class HomepageActivity extends AppCompatActivity {
         mLogout = (FloatingActionButton) findViewById(R.id.logout);
         mWelcome = (CardView) findViewById(R.id.welcomecard);
         mLinear = (LinearLayout) findViewById(R.id.homelinear);
+        mProfile = (CardView) findViewById(R.id.profile);
 
         Animation cardAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.lefttoright);
         Animation layoutAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.bottomtotop);
@@ -54,7 +55,16 @@ public class HomepageActivity extends AppCompatActivity {
         mNewOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getApplicationContext(), "New order implementation", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), PickupActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        mProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), UpdateAddressActivity.class);
+                startActivity(intent);
             }
         });
 

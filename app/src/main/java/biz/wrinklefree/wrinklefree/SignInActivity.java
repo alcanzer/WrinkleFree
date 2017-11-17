@@ -63,6 +63,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     LoginResponse mUser = null;
     boolean done = false;
     ProgressBar mProgressBar;
+    public static int userId;
     public static final String BASE_URL = "http://dev-api.wrinklefree.biz:8080/tidykart-ws/";
 
     @Override
@@ -151,12 +152,14 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     }
 
     void getData(GoogleSignInResult result) {
-
+        final String[] name = result.getSignInAccount().getDisplayName().split(" ");
+        Log.d("NAMERS", name[0]);
+        Log.d("NAMERS", name[1]);
         demoObj = new JSONObject();
         try {
             demoObj.put("emailAddress", "gef@gmail.com");
             demoObj.put("mobileNumber", "989534823");
-            demoObj.put("firstName", result.getSignInAccount().getDisplayName());
+            demoObj.put("firstName", name[1]);
             demoObj.put("lastName", "CDE");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -168,14 +171,15 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                 mProgressBar.setVisibility(View.GONE);
                 Gson gson = new Gson();
                 mUser = gson.fromJson(response.toString(), LoginResponse.class);
+                userId = mUser.getUserInfo().get(0).getUserId();
                 if (mUser.getIsFirstTimeUser()) {
                     Intent intent = new Intent(getApplicationContext(), UpdateAddressActivity.class);
-                    intent.putExtra("username", mUser.getUserInfo().get(0).getFirstName());
+                    intent.putExtra("username", name[0]);//mUser.getUserInfo().get(0).getFirstName());
                     startActivity(intent);
                     finish();
                 } else {
                     Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
-                    intent.putExtra("username", mUser.getUserInfo().get(0).getFirstName());
+                    intent.putExtra("username", name[0]);
                     startActivity(intent);
                     finish();
                 }
@@ -184,6 +188,9 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                if(mProgressBar != null && mProgressBar.getVisibility() == View.VISIBLE){
+                    mProgressBar.setVisibility(View.GONE);
+                }
                 Toast.makeText(ctx, error.toString(), Toast.LENGTH_SHORT).show();
             }
         }));

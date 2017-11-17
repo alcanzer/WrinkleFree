@@ -31,43 +31,50 @@ public class UpdateAddressActivity extends AppCompatActivity {
         mPincode = (EditText) findViewById(R.id.pincodeText);
         mSubmit = (Button) findViewById(R.id.submitBtn);
 
-        if (mAdd1.getText().toString() != null && mAdd2.getText().toString() != null && mPincode.getText().toString() != null){
-            mSubmit.setEnabled(true);
-        }
+
 
         mSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                JSONObject addObj = new JSONObject();
 
-                try {
-                    addObj.put("userId", 4);
-                    addObj.put("addressLine1", mAdd1.getText());
-                    addObj.put("addressLine2", mAdd2.getText());
-                    addObj.put("pincode", mPincode.getText());
-                    addObj.put("latlong", "0.0,0.0");
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                if(mAdd1.getText().toString().trim().equals("") || mAdd2.getText().toString().trim().equals("") || mPincode.getText().toString().trim().equals("")){
+                    Toast.makeText(getApplicationContext(), "Please enter the required details", Toast.LENGTH_SHORT).show();
                 }
 
-                VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonObjectRequest(BASE_URL + "updateaddress", addObj, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            if(!response.getBoolean("iSServiceAvailable")){
-                                Toast.makeText(getApplicationContext(), response.getString("comments"), Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                else {
 
+                    JSONObject addObj = new JSONObject();
+
+                    try {
+                        addObj.put("userId", 4);
+                        addObj.put("addressLine1", mAdd1.getText());
+                        addObj.put("addressLine2", mAdd2.getText());
+                        addObj.put("pincode", mPincode.getText());
+                        addObj.put("latlong", "0.0,0.0");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                }));
+
+                    VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonObjectRequest(BASE_URL + "updateaddress", addObj, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                if (!response.getBoolean("iSServiceAvailable")) {
+                                    Toast.makeText(getApplicationContext(), response.getString("comments"), Toast.LENGTH_SHORT).show();
+                                    finish();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+
+                        }
+                    }));
+                }
             }
         });
 
