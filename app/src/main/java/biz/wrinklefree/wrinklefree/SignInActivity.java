@@ -80,31 +80,34 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         cTop = (CardView) findViewById(R.id.topCard);
         cBot = (CardView) findViewById(R.id.bottomCard);
 
-
+        //Setting entry animation to the linear layouts in the activity.
         Animation mRtL = AnimationUtils.loadAnimation(this, R.anim.righttoleft);
         Animation mLtR = AnimationUtils.loadAnimation(this, R.anim.lefttoright);
 
         cTop.setAnimation(mRtL);
         cBot.setAnimation(mLtR);
 
+        //Instantiate Location Manager
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         locationEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-
+        //Build a googlesignin Options object.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
 
-
+        //Google ApiClient object.
         mClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
+        //Setting properties of the sign-in button
         mSignIn.setSize(SignInButton.SIZE_STANDARD);
         mSignIn.setScopes(gso.getScopeArray());
 
+        //Criteria for the Location listener( to consume less power)
         mCriteria = new Criteria();
         mCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
         mCriteria.setPowerRequirement(Criteria.POWER_LOW);
@@ -117,9 +120,10 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
         final Looper looper = null;
 
+        //Checks if the user is already logged in.
         silentLogin();
 
-
+        //Sign in funtion
         mSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -146,20 +150,22 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
     }
 
+
+    //Opens the google login box if the user is not signed in.
     void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mClient);
         startActivityForResult(signInIntent, 9);
     }
 
+    //Creates a json object that is posted to the backend and fetches the response.
     void getData(GoogleSignInResult result) {
         final String[] name = result.getSignInAccount().getDisplayName().split(" ");
-        Log.d("NAMERS", name[0]);
-        Log.d("NAMERS", name[1]);
+        Log.d("NAMERS", name == null ? "A" : name[0]);
         demoObj = new JSONObject();
         try {
             demoObj.put("emailAddress", "gef@gmail.com");
             demoObj.put("mobileNumber", "989534823");
-            demoObj.put("firstName", name[1]);
+            demoObj.put("firstName", name[0]);
             demoObj.put("lastName", "CDE");
         } catch (JSONException e) {
             e.printStackTrace();

@@ -50,7 +50,7 @@ public class PickupActivity extends AppCompatActivity {
         mOptions.add("10.00 AM - 1.00 PM");
 
         mDatePicker.setMinDate(System.currentTimeMillis());
-        mDatePicker.setMaxDate(System.currentTimeMillis() + (1000*60*60*24*3));
+        mDatePicker.setMaxDate(System.currentTimeMillis() + (1000*60*60*24*2));
 
         c = Calendar.getInstance();
 
@@ -85,7 +85,7 @@ public class PickupActivity extends AppCompatActivity {
 
                 try {
                     obj.put("userId", SignInActivity.userId);
-                    obj.put("addressId", 2);
+                    obj.put("addressId", 7);
                     obj.put("pickupSlotId", mTimeSlot);
                     obj.put("couponCode", mCoupon.getText().toString());
                     obj.put("bookingDate", time);
@@ -104,7 +104,7 @@ public class PickupActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(PickupActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PickupActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }));
             }

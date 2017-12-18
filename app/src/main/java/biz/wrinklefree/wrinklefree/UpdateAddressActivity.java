@@ -46,7 +46,7 @@ public class UpdateAddressActivity extends AppCompatActivity {
                     JSONObject addObj = new JSONObject();
 
                     try {
-                        addObj.put("userId", 4);
+                        addObj.put("userId", SignInActivity.userId);
                         addObj.put("addressLine1", mAdd1.getText());
                         addObj.put("addressLine2", mAdd2.getText());
                         addObj.put("pincode", mPincode.getText());
@@ -60,7 +60,7 @@ public class UpdateAddressActivity extends AppCompatActivity {
                         public void onResponse(JSONObject response) {
                             try {
                                 if (!response.getBoolean("iSServiceAvailable")) {
-                                    Toast.makeText(getApplicationContext(), response.getString("comments"), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_SHORT).show();
                                     finish();
                                 }
                             } catch (JSONException e) {

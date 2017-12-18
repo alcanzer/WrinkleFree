@@ -24,11 +24,12 @@
             android:theme="@style/Theme.AppCompat.Translucent" />
         <activity
             android:name=".UpdateAddressActivity"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".HomepageActivity"
-            android:theme="@style/AppTheme"></activity>
-        <activity android:name=".PickupActivity"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".PickupActivity" />
+        <activity android:name=".MyOrdersActivity"></activity>
     </application>
 
 </manifest>

@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutCompat;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -14,6 +15,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringListener;
+import com.facebook.rebound.SpringSystem;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -28,7 +32,7 @@ public class HomepageActivity extends AppCompatActivity {
     CardView mNewOrder;
     FloatingActionButton mLogout;
     GoogleApiClient mClient;
-    CardView mWelcome, mProfile;
+    CardView mWelcome, mProfile, mOrders;
     LinearLayout mLinear;
 
     @Override
@@ -40,6 +44,7 @@ public class HomepageActivity extends AppCompatActivity {
         mLogout = (FloatingActionButton) findViewById(R.id.logout);
         mWelcome = (CardView) findViewById(R.id.welcomecard);
         mLinear = (LinearLayout) findViewById(R.id.homelinear);
+        mOrders = (CardView) findViewById(R.id.orders);
         mProfile = (CardView) findViewById(R.id.profile);
 
         Animation cardAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.lefttoright);
@@ -64,6 +69,14 @@ public class HomepageActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), UpdateAddressActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        mOrders.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), MyOrdersActivity.class);
                 startActivity(intent);
             }
         });
