@@ -1,5 +1,6 @@
 package biz.wrinklefree.wrinklefree;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -19,6 +20,7 @@ public class UpdateAddressActivity extends AppCompatActivity {
     EditText mAdd1, mAdd2, mPincode;
     Button mSubmit;
     String BASE_URL = "http://dev-api.wrinklefree.biz:8080/tidykart-ws/";
+    Boolean callingAct = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +32,11 @@ public class UpdateAddressActivity extends AppCompatActivity {
         mAdd2 = (EditText) findViewById(R.id.addText2);
         mPincode = (EditText) findViewById(R.id.pincodeText);
         mSubmit = (Button) findViewById(R.id.submitBtn);
+        int calAct = getIntent().getIntExtra("CallingAct", 0);
+
+        if(calAct == 1){
+            callingAct = true;
+        }
 
 
 
@@ -50,7 +57,7 @@ public class UpdateAddressActivity extends AppCompatActivity {
                         addObj.put("addressLine1", mAdd1.getText());
                         addObj.put("addressLine2", mAdd2.getText());
                         addObj.put("pincode", mPincode.getText());
-                        addObj.put("latlong", "0.0,0.0");
+                        addObj.put("latlong", SignInActivity.lat+","+SignInActivity.lng);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -61,7 +68,9 @@ public class UpdateAddressActivity extends AppCompatActivity {
                             try {
                                 if (!response.getBoolean("iSServiceAvailable")) {
                                     Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_SHORT).show();
-                                    finish();
+                                        Intent intent = new Intent(UpdateAddressActivity.this, HomepageActivity.class);
+                                        intent.putExtra("username", SignInActivity.name[0]);
+                                        startActivity(intent);
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();

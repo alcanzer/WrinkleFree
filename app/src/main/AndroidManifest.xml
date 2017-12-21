@@ -20,16 +20,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".OTPActivity"
-            android:theme="@style/Theme.AppCompat.Translucent" />
-        <activity
             android:name=".UpdateAddressActivity"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".HomepageActivity"
             android:theme="@style/AppTheme" />
         <activity android:name=".PickupActivity" />
-        <activity android:name=".MyOrdersActivity"></activity>
+        <activity android:name=".MyOrdersActivity" />
+        <activity android:name=".OTPActivity"></activity>
     </application>
 
 </manifest>

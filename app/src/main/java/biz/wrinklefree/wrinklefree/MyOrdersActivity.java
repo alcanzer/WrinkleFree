@@ -56,14 +56,26 @@ public class MyOrdersActivity extends AppCompatActivity implements SwipeRefreshL
                 LayoutInflater inflater = getLayoutInflater();
                 View dialog = inflater.inflate(R.layout.customdialog, null);
                 builder.setView(dialog);
-                final TextView tvs = dialog.findViewById(R.id.textView6);
+                final TextView shirt = dialog.findViewById(R.id.textView10);
+                final TextView shirtnum = dialog.findViewById(R.id.textView11);
+                final TextView pant = dialog.findViewById(R.id.textView6);
+                final TextView pantnum = dialog.findViewById(R.id.textView8);
+                final TextView saree = dialog.findViewById(R.id.textView9);
+                final TextView sareenum = dialog.findViewById(R.id.textView7);
                 VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonObjectRequest(Request.Method.GET, SignInActivity.BASE_URL + "getorderdetail/" + orderArrayList.get(position).getOrderId(), null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray jArr = response.getJSONArray("orderItemDetail");
                             JSONObject jObj = jArr.getJSONObject(0);
-                            tvs.setText((CharSequence) jObj.get("itemName"));
+                            JSONObject jObj1 = jArr.getJSONObject(1);
+                            JSONObject jObj2 = jArr.getJSONObject(2);
+                            shirt.setText((CharSequence) jObj.get("itemName"));
+                            shirtnum.setText(jObj.getInt("itemCount")+"");
+                            pant.setText(jObj1.getString("itemName"));
+                            pantnum.setText(jObj1.getInt("itemCount")+"");
+                            saree.setText(jObj2.getString("itemName"));
+                            sareenum.setText(jObj2.getInt("itemCount")+"");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

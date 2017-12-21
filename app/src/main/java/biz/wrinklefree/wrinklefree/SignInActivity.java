@@ -64,6 +64,8 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     boolean done = false;
     ProgressBar mProgressBar;
     public static int userId;
+    public static String[] name;
+    public static String lat, lng;
     public static final String BASE_URL = "http://dev-api.wrinklefree.biz:8080/tidykart-ws/";
 
     @Override
@@ -159,7 +161,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
     //Creates a json object that is posted to the backend and fetches the response.
     void getData(GoogleSignInResult result) {
-        final String[] name = result.getSignInAccount().getDisplayName().split(" ");
+        name = result.getSignInAccount().getDisplayName().split(" ");
         Log.d("NAMERS", name == null ? "A" : name[0]);
         demoObj = new JSONObject();
         try {
@@ -179,7 +181,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                 mUser = gson.fromJson(response.toString(), LoginResponse.class);
                 userId = mUser.getUserInfo().get(0).getUserId();
                 if (mUser.getIsFirstTimeUser()) {
-                    Intent intent = new Intent(getApplicationContext(), UpdateAddressActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), OTPActivity.class);
                     intent.putExtra("username", name[0]);//mUser.getUserInfo().get(0).getFirstName());
                     startActivity(intent);
                     finish();
@@ -288,6 +290,8 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         LocationAddress locationAddress = new LocationAddress();
         locationAddress.getAddressFromLocation(location.getLatitude(), location.getLongitude(),
                 getApplicationContext(), new GeocoderHandler());
+        lat = String.format("%.5f", location.getLatitude());
+        lng = String.format("%.5f", location.getLongitude());
     }
 
     @Override
