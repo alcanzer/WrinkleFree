@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,18 +52,16 @@ import biz.wrinklefree.wrinklefree.ResponseObjects.LoginResponse;
 
 public class SignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    SignInButton mSignIn;
+    Button mSignIn;
+    TextView mSignUp;
     GoogleApiClient mClient;
     LocationManager mLocationManager;
     Criteria mCriteria;
     boolean locationEnabled;
     Location mCurrentLatLng;
-    CardView cTop, cBot;
     Context ctx;
     JSONObject demoObj;
     LoginResponse mUser = null;
-    boolean done = false;
-    ProgressBar mProgressBar;
     public static int userId;
     public static String[] name;
     public static String lat, lng;
@@ -73,21 +72,22 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+        mSignIn = (Button) findViewById(R.id.signin);
+        mSignUp = (TextView) findViewById(R.id.signUp);
+
+        mSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SignInActivity.this, Homepage.class);
+                startActivity(intent);
+            }
+        });
+
 
         checkPermissions();
         ctx = this;
 
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
-        mSignIn = (SignInButton) findViewById(R.id.signin);
-        cTop = (CardView) findViewById(R.id.topCard);
-        cBot = (CardView) findViewById(R.id.bottomCard);
-
         //Setting entry animation to the linear layouts in the activity.
-        Animation mRtL = AnimationUtils.loadAnimation(this, R.anim.righttoleft);
-        Animation mLtR = AnimationUtils.loadAnimation(this, R.anim.lefttoright);
-
-        cTop.setAnimation(mRtL);
-        cBot.setAnimation(mLtR);
 
         //Instantiate Location Manager
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -106,8 +106,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                 .build();
 
         //Setting properties of the sign-in button
-        mSignIn.setSize(SignInButton.SIZE_STANDARD);
-        mSignIn.setScopes(gso.getScopeArray());
 
         //Criteria for the Location listener( to consume less power)
         mCriteria = new Criteria();
@@ -130,7 +128,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
             @Override
             public void onClick(View view) {
                 signIn();
-                mProgressBar.setVisibility(View.VISIBLE);
                 if (ActivityCompat.checkSelfPermission(SignInActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(SignInActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
@@ -176,7 +173,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonObjectRequest(BASE_URL + "login", demoObj, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                mProgressBar.setVisibility(View.GONE);
                 Gson gson = new Gson();
                 mUser = gson.fromJson(response.toString(), LoginResponse.class);
                 userId = mUser.getUserInfo().get(0).getUserId();
@@ -186,7 +182,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                     startActivity(intent);
                     finish();
                 } else {
-                    Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), Homepage.class);
                     intent.putExtra("username", name[0]);
                     startActivity(intent);
                     finish();
@@ -196,9 +192,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                if(mProgressBar != null && mProgressBar.getVisibility() == View.VISIBLE){
-                    mProgressBar.setVisibility(View.GONE);
-                }
+
                 Toast.makeText(ctx, error.toString(), Toast.LENGTH_SHORT).show();
             }
         }));
@@ -224,9 +218,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
             handleSignInResult(result);
         }
         else if(resultCode == RESULT_CANCELED){
-            if(mProgressBar != null && mProgressBar.getVisibility() == View.VISIBLE){
-                mProgressBar.setVisibility(View.GONE);
-            }
         }
     }
 
