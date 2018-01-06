@@ -36,11 +36,13 @@ public class MyOrdersActivity extends AppCompatActivity implements SwipeRefreshL
     ArrayList<MyOrder> orderArrayList;
     OrderAdapter adapter = null;
     AlertDialog.Builder builder;
+    private UserInfoPref pref = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_orders);
+        pref = new UserInfoPref(getApplication());
         orderArrayList = new ArrayList<>();
         main = (SwipeRefreshLayout) findViewById(R.id.main);
         builder = new AlertDialog.Builder(this);
@@ -102,7 +104,7 @@ public class MyOrdersActivity extends AppCompatActivity implements SwipeRefreshL
     }
 
     public void getData(){
-        VRequest.getInstance(this).addToRequestQueue(new JsonArrayRequest(Request.Method.GET, SignInActivity.BASE_URL + "getmyorders/" + SignInActivity.userId,
+        VRequest.getInstance(this).addToRequestQueue(new JsonArrayRequest(Request.Method.GET, SignInActivity.BASE_URL + "getmyorders/" + pref.getKey("userID"),
                 null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {

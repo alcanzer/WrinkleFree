@@ -5,9 +5,9 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/nav_orders"
             android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:title="Orders" />
         <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_menu_gallery"
@@ -32,6 +32,10 @@
                 android:id="@+id/nav_send"
                 android:icon="@drawable/ic_menu_send"
                 android:title="Send" />
+            <item
+                android:id="@+id/logout"
+                android:icon="@drawable/ic_stat_name"
+                android:title="Logout"/>
         </menu>
     </item>
 

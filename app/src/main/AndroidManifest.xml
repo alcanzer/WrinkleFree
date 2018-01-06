@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="biz.wrinklefree.wrinklefree">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -31,7 +32,10 @@
         <activity
             android:name=".Homepage"
             android:label="@string/title_activity_homepage"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".SignUpActivity" />
+        <activity android:name=".SuccessActivity" />
+        <activity android:name=".RejectActivity"></activity>
     </application>
 
 </manifest>

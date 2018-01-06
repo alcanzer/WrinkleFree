@@ -66,20 +66,46 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     public static String[] name;
     public static String lat, lng;
     public static final String BASE_URL = "http://dev-api.wrinklefree.biz:8080/tidykart-ws/";
+    private UserInfoPref userInfoPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        mSignIn = (Button) findViewById(R.id.signin);
-        mSignUp = (TextView) findViewById(R.id.signUp);
+        userInfoPref = new UserInfoPref(this);
+
+        mSignIn = findViewById(R.id.signin);
+        mSignUp = findViewById(R.id.signUp);
+
+        //Criteria for the Location listener( to consume less power)
+        mCriteria = new Criteria();
+        mCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
+        mCriteria.setPowerRequirement(Criteria.POWER_LOW);
+        mCriteria.setAltitudeRequired(false);
+        mCriteria.setBearingRequired(false);
+        mCriteria.setSpeedRequired(false);
+        mCriteria.setCostAllowed(true);
+        mCriteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
+        mCriteria.setVerticalAccuracy(Criteria.ACCURACY_HIGH);
+
+        final Looper looper = null;
 
         mSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SignInActivity.this, Homepage.class);
-                startActivity(intent);
+                signIn();
+                if (ActivityCompat.checkSelfPermission(SignInActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(SignInActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                mLocationManager.requestSingleUpdate(mCriteria, SignInActivity.this, looper);
             }
         });
 
@@ -106,19 +132,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                 .build();
 
         //Setting properties of the sign-in button
-
-        //Criteria for the Location listener( to consume less power)
-        mCriteria = new Criteria();
-        mCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
-        mCriteria.setPowerRequirement(Criteria.POWER_LOW);
-        mCriteria.setAltitudeRequired(false);
-        mCriteria.setBearingRequired(false);
-        mCriteria.setSpeedRequired(false);
-        mCriteria.setCostAllowed(true);
-        mCriteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
-        mCriteria.setVerticalAccuracy(Criteria.ACCURACY_HIGH);
-
-        final Looper looper = null;
 
         //Checks if the user is already logged in.
         silentLogin();
@@ -158,14 +171,13 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
     //Creates a json object that is posted to the backend and fetches the response.
     void getData(GoogleSignInResult result) {
-        name = result.getSignInAccount().getDisplayName().split(" ");
-        Log.d("NAMERS", name == null ? "A" : name[0]);
+
         demoObj = new JSONObject();
         try {
-            demoObj.put("emailAddress", "gef@gmail.com");
-            demoObj.put("mobileNumber", "989534823");
-            demoObj.put("firstName", name[0]);
-            demoObj.put("lastName", "CDE");
+            demoObj.put("emailAddress", result.getSignInAccount().getEmail());
+            demoObj.put("mobileNumber", userInfoPref.getKey("MobileNumber"));
+            demoObj.put("firstName", userInfoPref.getKey("FirstName"));
+            demoObj.put("lastName", userInfoPref.getKey("LastName"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -177,13 +189,21 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                 mUser = gson.fromJson(response.toString(), LoginResponse.class);
                 userId = mUser.getUserInfo().get(0).getUserId();
                 if (mUser.getIsFirstTimeUser()) {
-                    Intent intent = new Intent(getApplicationContext(), OTPActivity.class);
-                    intent.putExtra("username", name[0]);//mUser.getUserInfo().get(0).getFirstName());
+                    Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
+                    userInfoPref.putKey("userID", String.valueOf(mUser.getUserInfo().get(0).getUserId()));
+                    userInfoPref.putKey("Email", mUser.getUserInfo().get(0).getEmailAddress());
+                    //mUser.getUserInfo().get(0).getFirstName());
                     startActivity(intent);
                     finish();
                 } else {
+                    userInfoPref.putKey("FirstName", mUser.getUserInfo().get(0).getFirstName() == null ? "" : mUser.getUserInfo().get(0).getFirstName());
+                    userInfoPref.putKey("LastName", mUser.getUserInfo().get(0).getLastName() == null ? "" : mUser.getUserInfo().get(0).getLastName());
+                    userInfoPref.putKey("MobileNumber", String.valueOf(mUser.getUserInfo().get(0).getMobileNumber()).isEmpty() ? "" : String.valueOf(mUser.getUserInfo().get(0).getMobileNumber()));
+                    userInfoPref.putKey("Email", mUser.getUserInfo().get(0).getEmailAddress());
+                    userInfoPref.putKey("userID", String.valueOf(mUser.getUserInfo().get(0).getUserId()));
+                    Log.d("Response", response.toString());
                     Intent intent = new Intent(getApplicationContext(), Homepage.class);
-                    intent.putExtra("username", name[0]);
+                    intent.putExtra("username", mUser.getUserInfo().get(0).getFirstName());
                     startActivity(intent);
                     finish();
                 }
