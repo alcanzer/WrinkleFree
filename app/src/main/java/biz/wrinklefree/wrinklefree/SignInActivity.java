@@ -50,6 +50,8 @@ import org.json.JSONObject;
 
 import biz.wrinklefree.wrinklefree.ResponseObjects.LoginResponse;
 
+import static biz.wrinklefree.wrinklefree.SignUpActivity.pager;
+
 public class SignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     Button mSignIn;
@@ -188,23 +190,33 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                 Gson gson = new Gson();
                 mUser = gson.fromJson(response.toString(), LoginResponse.class);
                 userId = mUser.getUserInfo().get(0).getUserId();
+                Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
                 if (mUser.getIsFirstTimeUser()) {
-                    Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
                     userInfoPref.putKey("userID", String.valueOf(mUser.getUserInfo().get(0).getUserId()));
                     userInfoPref.putKey("Email", mUser.getUserInfo().get(0).getEmailAddress());
                     //mUser.getUserInfo().get(0).getFirstName());
                     startActivity(intent);
                     finish();
-                } else {
+                } else if(mUser.getUserInfo().get(0).getAddressUpdated() == false){
+
+                    intent.putExtra("FormUpdate", "Address");
+                    startActivity(intent);
+                    finish();
+                }
+                else if(mUser.getUserInfo().get(0).getMobileVerified() == false){
+                    intent.putExtra("FormUpdate", "Mobile");
+                    startActivity(intent);
+                    finish();
+                }else{
                     userInfoPref.putKey("FirstName", mUser.getUserInfo().get(0).getFirstName() == null ? "" : mUser.getUserInfo().get(0).getFirstName());
                     userInfoPref.putKey("LastName", mUser.getUserInfo().get(0).getLastName() == null ? "" : mUser.getUserInfo().get(0).getLastName());
                     userInfoPref.putKey("MobileNumber", String.valueOf(mUser.getUserInfo().get(0).getMobileNumber()).isEmpty() ? "" : String.valueOf(mUser.getUserInfo().get(0).getMobileNumber()));
                     userInfoPref.putKey("Email", mUser.getUserInfo().get(0).getEmailAddress());
                     userInfoPref.putKey("userID", String.valueOf(mUser.getUserInfo().get(0).getUserId()));
                     Log.d("Response", response.toString());
-                    Intent intent = new Intent(getApplicationContext(), Homepage.class);
+                    Intent mIntent = new Intent(getApplicationContext(), Homepage.class);
                     intent.putExtra("username", mUser.getUserInfo().get(0).getFirstName());
-                    startActivity(intent);
+                    startActivity(mIntent);
                     finish();
                 }
 

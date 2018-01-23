@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SignInActivity">
+        <activity android:name=".SignInActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -22,20 +23,31 @@
         </activity>
         <activity
             android:name=".UpdateAddressActivity"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".HomepageActivity"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".PickupActivity" />
-        <activity android:name=".MyOrdersActivity" />
-        <activity android:name=".OTPActivity" />
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".PickupActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".MyOrdersActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".OTPActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".Homepage"
             android:label="@string/title_activity_homepage"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
-        <activity android:name=".SignUpActivity" />
-        <activity android:name=".SuccessActivity" />
-        <activity android:name=".RejectActivity"></activity>
+        <activity android:name=".SignUpActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".SuccessActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".RejectActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".PickupsActivity"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

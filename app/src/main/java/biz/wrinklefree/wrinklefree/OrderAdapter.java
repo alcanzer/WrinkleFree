@@ -12,6 +12,8 @@ import java.util.Date;
 
 import biz.wrinklefree.wrinklefree.ResponseObjects.MyOrder;
 
+import static biz.wrinklefree.wrinklefree.Homepage.config;
+
 /**
  * Created by alcanzer on 12/18/17.
  */
@@ -24,18 +26,20 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         public TextView bookingId;
         public TextView orderId;
         public TextView serviceId;
-        public TextView serviceType;
+        public TextView orderplaced;
         public TextView price;
+        public TextView items;
         public TextView orderDate;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            bookingId = itemView.findViewById(R.id.bookingID);
-            orderId = itemView.findViewById(R.id.orderID);
-            serviceId = itemView.findViewById(R.id.serviceID);
-            serviceType = itemView.findViewById(R.id.serviceStatus);
-            price = itemView.findViewById(R.id.price);
-            orderDate = itemView.findViewById(R.id.orderDate);
+            bookingId = itemView.findViewById(R.id.bookingtext);
+            orderId = itemView.findViewById(R.id.ordertext);
+            serviceId = itemView.findViewById(R.id.servicetypetext);
+            orderplaced = itemView.findViewById(R.id.orderplacedtext);
+            price = itemView.findViewById(R.id.pricetext);
+            items = itemView.findViewById(R.id.itemtext);
+            orderDate = itemView.findViewById(R.id.deliverytext);
         }
     }
 
@@ -54,11 +58,12 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(OrderAdapter.ViewHolder holder, int position) {
         MyOrder order = orders.get(position);
-        holder.bookingId.setText(String.valueOf(order.getBookingId()));
-        holder.orderId.setText(String.valueOf(order.getOrderId()));
+        holder.bookingId.setText("Booking ID: " + String.valueOf(order.getBookingId()));
+        holder.orderId.setText("Order ID: " + String.valueOf(order.getOrderId()));
         holder.serviceId.setText(getServiceType(order.getServiceTypeId()));
-        holder.serviceType.setText(getStatus(order.getOrderStatusId()));
+        holder.orderplaced.setText("Order placed on: " + new SimpleDateFormat("dd/MM/yyyy").format(new Date(order.getBookingTime())));
         holder.price.setText(String.valueOf(order.getOrderPrice()));
+        holder.items.setText("Items: ");
         holder.orderDate.setText(new SimpleDateFormat("dd/MM/yyyy").
                 format(new Date(order.getBookingTime())));
     }
@@ -69,11 +74,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
     }
 
     public String getServiceType(int i){
-        switch(i){
-            case 1: return "Ironing";
-            case 2: return "Laundry";
-            default: return "N/A";
-        }
+
+        return config.getServiceTypeList()[i-1].getServiceName();
+
     }
 
     public String getStatus(int i){

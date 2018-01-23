@@ -55,7 +55,7 @@ public class MyOrdersActivity extends AppCompatActivity implements SwipeRefreshL
         rv.addOnItemTouchListener(new RecyclerItemClick(getApplication(), rv, new RecyclerItemClick.RecyclerTouchListener() {
             @Override
             public void onItemClick(View v, int position) {
-                LayoutInflater inflater = getLayoutInflater();
+                /*LayoutInflater inflater = getLayoutInflater();
                 View dialog = inflater.inflate(R.layout.customdialog, null);
                 builder.setView(dialog);
                 final TextView shirt = dialog.findViewById(R.id.textView10);
@@ -63,11 +63,14 @@ public class MyOrdersActivity extends AppCompatActivity implements SwipeRefreshL
                 final TextView pant = dialog.findViewById(R.id.textView6);
                 final TextView pantnum = dialog.findViewById(R.id.textView8);
                 final TextView saree = dialog.findViewById(R.id.textView9);
-                final TextView sareenum = dialog.findViewById(R.id.textView7);
-                VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonObjectRequest(Request.Method.GET, SignInActivity.BASE_URL + "getorderdetail/" + orderArrayList.get(position).getOrderId(), null, new Response.Listener<JSONObject>() {
+                final TextView sareenum = dialog.findViewById(R.id.textView7);*/
+                VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonObjectRequest(Request.Method.GET, SignInActivity.BASE_URL + "home/" + pref.getKey("userID"), null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        try {
+
+
+
+                        /*try {
                             JSONArray jArr = response.getJSONArray("orderItemDetail");
                             JSONObject jObj = jArr.getJSONObject(0);
                             JSONObject jObj1 = jArr.getJSONObject(1);
@@ -82,7 +85,7 @@ public class MyOrdersActivity extends AppCompatActivity implements SwipeRefreshL
                             e.printStackTrace();
                         }
                         AlertDialog alertDialog = builder.create();
-                        alertDialog.show();
+                        alertDialog.show();*/
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -109,13 +112,14 @@ public class MyOrdersActivity extends AppCompatActivity implements SwipeRefreshL
             @Override
             public void onResponse(JSONArray response) {
                 main.setRefreshing(false);
+                if(response.length() == 0){
+                    Toast.makeText(getApplicationContext(), "No orders", Toast.LENGTH_SHORT).show();
+                }
                 Gson gson = new Gson();
                 Type type = new TypeToken<ArrayList<MyOrder>>(){}.getType();
                 orderArrayList = gson.fromJson(response.toString(), type);
                 adapter = new OrderAdapter(orderArrayList);
                 rv.setAdapter(adapter);
-
-                Toast.makeText(getApplicationContext(), orderArrayList.toString(), Toast.LENGTH_SHORT).show();
 
             }
         }, new Response.ErrorListener() {

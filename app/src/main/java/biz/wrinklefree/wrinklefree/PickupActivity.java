@@ -1,5 +1,9 @@
 package biz.wrinklefree.wrinklefree;
 
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,19 +25,26 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
 
 public class PickupActivity extends AppCompatActivity {
 
     //DatePicker mDatePicker;
     Date mDate;
-    Spinner mSlot, mPickDates;
+    Spinner mSlot, mPickDates, mServiceType;
     Button mReq;
-    int mTimeSlot;
+    int mTimeSlot, mSType;
     Calendar c;
     EditText mCoupon;
+    CircularProgressButton mCouponCheck;
+    private List<SlotList> mOptions;
+    private List<ServiceTypeList> mList;
+    private ArrayList<String> serviceList, slotList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,15 +54,19 @@ public class PickupActivity extends AppCompatActivity {
         final UserInfoPref pref = new UserInfoPref(getApplication());
 
         //mDatePicker = (DatePicker) findViewById(R.id.datePicker);
+        serviceList = new ArrayList<>();
+        slotList = new ArrayList<>();
+        mServiceType = findViewById(R.id.servicetype);
         mSlot = (Spinner) findViewById(R.id.spinner);
         mPickDates = findViewById(R.id.pickdates);
         mReq = (Button) findViewById(R.id.pickreq);
         mCoupon = (EditText) findViewById(R.id.couponET);
+        mCouponCheck = findViewById(R.id.checkcoupon);
 
-        List<String> mOptions = new ArrayList<>();
-        mOptions.add("5.00 PM - 7.00 PM");
-        mOptions.add("7.00 PM - 9.00 PM");
-        mOptions.add("10.00 AM - 1.00 PM");
+        mOptions = new ArrayList<>(Arrays.asList(Homepage.config.getSlotList()));
+        mList = new ArrayList<>(Arrays.asList(Homepage.config.getServiceTypeList()));
+
+        fillData();
 
         Date today = new Date(System.currentTimeMillis());
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
@@ -88,7 +103,7 @@ public class PickupActivity extends AppCompatActivity {
         });
 
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mOptions);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, slotList);
 
         //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -97,14 +112,84 @@ public class PickupActivity extends AppCompatActivity {
         mSlot.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                mTimeSlot = i+1;
+                mTimeSlot = Integer.parseInt(mOptions.get(i).getSlotId());
                 Log.d("ItemSelected", mTimeSlot+"");
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                mTimeSlot = 1;
+                mTimeSlot = Integer.parseInt(mOptions.get(0).getSlotId());
                 Log.d("ItemSelected", mTimeSlot+"");
+            }
+        });
+
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, serviceList);
+
+        mServiceType.setAdapter(adapter1);
+
+        mServiceType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                mSType = Integer.parseInt(mList.get(i).getServiceTypeId());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                mSType = Integer.parseInt(mList.get(0).getServiceTypeId());
+            }
+        });
+
+        mCouponCheck.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCouponCheck.startAnimation();
+
+                Toast.makeText(PickupActivity.this, mSType+" "+mCoupon.getText(), Toast.LENGTH_SHORT).show();
+
+                JSONObject jObj = new JSONObject();
+
+                try {
+                    jObj.put("userId", pref.getKey("userID"));
+                    jObj.put("couponCode", mCoupon.getText().toString().trim());
+                    jObj.put("serviceTypeId", mSType);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                VRequest.getInstance(getApplicationContext()).addToRequestQueue(new JsonObjectRequest(SignInActivity.BASE_URL + "isvalidcoupon", jObj, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if(response.getBoolean("validCoupon")){
+                                mCouponCheck.doneLoadingAnimation(Color.GREEN, BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                                        R.drawable.ic_action_name));
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mCouponCheck.revertAnimation();
+                                    }
+                                }, 2000);
+                            }
+                            else{
+                                mCouponCheck.doneLoadingAnimation(Color.RED, BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                                        R.drawable.ic_error));
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mCouponCheck.revertAnimation();
+                                    }
+                                }, 2000);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        mCouponCheck.revertAnimation();
+                    }
+                }));
             }
         });
 
@@ -117,10 +202,11 @@ public class PickupActivity extends AppCompatActivity {
                 JSONObject obj = new JSONObject();
                 try {
                     obj.put("userId", Integer.parseInt(pref.getKey("userID")));
-                    obj.put("addressId", Integer.parseInt(pref.getKey("AddressId") == null ? "25" : pref.getKey("AddressId")));
+                    obj.put("addressId", Integer.parseInt(pref.getKey("AddressId")));
                     obj.put("pickupSlotId", mTimeSlot);
+                    obj.put("serviceTypeId", mSType);
+                    obj.put("pickupDate", time);
                     obj.put("couponCode", mCoupon.getText().toString());
-                    Toast.makeText(PickupActivity.this, pref.getKey("userID") + "    " + Integer.parseInt(pref.getKey("AddressId") == null ? "24" : pref.getKey("AddressId")), Toast.LENGTH_SHORT).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -141,6 +227,18 @@ public class PickupActivity extends AppCompatActivity {
                 }));
             }
         });
+
+    }
+
+    public void fillData(){
+
+        for(ServiceTypeList e : mList){
+            serviceList.add(e.getServiceName());
+        }
+
+        for(SlotList e: mOptions){
+            slotList.add(e.getSlotTiming());
+        }
 
     }
 }

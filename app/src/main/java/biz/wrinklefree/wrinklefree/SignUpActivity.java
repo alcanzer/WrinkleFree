@@ -23,6 +23,16 @@ public class SignUpActivity extends FragmentActivity {
         pager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
         indicator.setViewPager(pager);
 
+        String form = getIntent().getStringExtra("FormUpdate");
+
+        if(form.equals("Mobile")){
+            pager.setCurrentItem(2);
+        }
+
+        if(form.equals("Address")){
+            pager.setCurrentItem(1);
+        }
+
     }
 
     public class PagerAdapter extends FragmentPagerAdapter{
